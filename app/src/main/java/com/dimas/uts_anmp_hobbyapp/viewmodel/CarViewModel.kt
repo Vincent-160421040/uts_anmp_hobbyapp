@@ -29,7 +29,7 @@ class CarViewModel(application: Application): AndroidViewModel(application) {
         loadingLD.value         = true
         carLoadErrorLD.value    = false
 
-        val url = "http://192.168.100.31/json/car.json"
+        val url = "http://192.168.100.5/json/car.json"
         queue   = Volley.newRequestQueue(getApplication())
 
         val stringRequest = StringRequest(

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.dimas.uts_anmp_hobbyapp.databinding.ActivityMainBinding
 import com.dimas.uts_anmp_hobbyapp.viewmodel.NavViewModel
@@ -36,5 +38,16 @@ class MainActivity : AppCompatActivity(){
         var loginInfo = "com.dimas.uts_anmp_hobbyapp"
         var shared: SharedPreferences = getSharedPreferences(loginInfo, Context.MODE_PRIVATE )
         userid = shared.getString("iduser","").toString()
+    }
+
+    override fun onBackPressed() {
+        if(userid != "")
+        {
+            Toast.makeText(this, "Please Click Logout", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            super.onBackPressed()
+        }
     }
 }
