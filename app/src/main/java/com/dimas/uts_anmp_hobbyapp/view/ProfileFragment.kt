@@ -43,6 +43,8 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        UpdateUI()
+
         navViewModel = ViewModelProvider(requireActivity()).get(NavViewModel::class.java)
         navViewModel.selectedItemId.observe(viewLifecycleOwner) { itemId ->
             when (itemId) {
@@ -55,16 +57,6 @@ class ProfileFragment : Fragment() {
                     val action = ProfileFragmentDirections.actionProfileToHistory()
                     Navigation.findNavController(requireView()).navigate(action)
                 }
-            }
-        }
-
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
-        userViewModel.getData()
-        userViewModel.userLD.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                binding.txtName.text = "Welcome, " + user.nama_depan + " " + user.nama_belakang
-                binding.txtFirstname2.setText(user.nama_depan)
-                binding.txtLastName2.setText(user.nama_belakang)
             }
         }
 
@@ -82,6 +74,7 @@ class ProfileFragment : Fragment() {
         binding.btnUpdate.setOnClickListener {
             if (binding.txtNewPassword.text.toString() == binding.txtConfirmPassword.text.toString()) {
                 UpdateProfile()
+                UpdateUI()
             }
             else if(binding.txtConfirmPassword.text.toString()  == "" ||
                     binding.txtNewPassword.text.toString()      == "" ||
@@ -97,6 +90,7 @@ class ProfileFragment : Fragment() {
 
     private fun UpdateProfile() {
         val password        = binding.txtNewPassword.text.toString()
+        val email           = binding.txtEmail2.text.toString()
         val namaDepan       = binding.txtFirstname2.text.toString()
         val namaBelakang    = binding.txtLastName2.text.toString()
 
@@ -116,6 +110,7 @@ class ProfileFragment : Fragment() {
                 val params = HashMap<String, String>()
 
                 params["iduser"]        = MainActivity.userid
+                params["email"]         = email
                 params["password"]      = password
                 params["nama_depan"]    = namaDepan
                 params["nama_belakang"] = namaBelakang
@@ -123,7 +118,19 @@ class ProfileFragment : Fragment() {
                 return params
             }
         }
-
         Volley.newRequestQueue(requireContext()).add(request)
+    }
+
+    private fun UpdateUI(){
+        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        userViewModel.getData()
+        userViewModel.userLD.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                binding.txtName.text = "Welcome, " + user.nama_depan + " " + user.nama_belakang
+                binding.txtEmail2.setText(user.email)
+                binding.txtFirstname2.setText(user.nama_depan)
+                binding.txtLastName2.setText(user.nama_belakang)
+            }
+        }
     }
 }

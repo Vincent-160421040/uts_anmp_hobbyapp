@@ -35,6 +35,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun registerUser() {
         val userId      = binding.txtUsername.text.toString()
+        val email       = binding.txtEmail.text.toString()
         val firstName   = binding.txtFirstName.text.toString()
         val lastname    = binding.txtLastName.text.toString()
         val pass        = binding.txtPassword.text.toString()
@@ -51,6 +52,7 @@ class RegisterActivity : AppCompatActivity() {
                 val params = HashMap<String, String>()
 
                 params["iduser"]        = userId
+                params["email"]         = email
                 params["nama_depan"]    = firstName
                 params["nama_belakang"] = lastname
                 params["password"]      = pass
