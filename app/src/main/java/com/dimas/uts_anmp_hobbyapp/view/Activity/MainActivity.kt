@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity(){
         viewModel = ViewModelProvider(this).get(NavViewModel::class.java)
 
         binding.bottomNav.setOnNavigationItemSelectedListener { item ->
-            viewModel.onBottomNavigationItemSelected(item.itemId)
+            viewModel.BottomNavItem(item.itemId)
             true
         }
     }

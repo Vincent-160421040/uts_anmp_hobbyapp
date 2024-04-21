@@ -17,7 +17,7 @@ class NavViewModel : ViewModel() {
     private val ItemId = MutableLiveData<Int>()
     val selectedItemId: LiveData<Int> = ItemId
 
-    fun onBottomNavigationItemSelected(itemId: Int) {
+    fun BottomNavItem(itemId: Int) {
         ItemId.value = itemId
     }
 }
