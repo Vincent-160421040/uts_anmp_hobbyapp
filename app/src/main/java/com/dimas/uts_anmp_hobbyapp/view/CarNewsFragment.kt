@@ -5,71 +5,45 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.dimas.uts_anmp_hobbyapp.databinding.FragmentCarNewsBinding
-import com.squareup.picasso.Picasso
+import com.dimas.uts_anmp_hobbyapp.viewmodel.CarDetailViewModel
 
-class CarNewsFragment : Fragment() {
-    private lateinit var  binding:FragmentCarNewsBinding
-
-    private var carId       :Int? = null
-    private var newsIndex   : Int = 0
-
-    private lateinit var title          : String
-    private lateinit var creator        : String
-    private lateinit var description    : List<String>
-    private lateinit var image          : String
-
+class CarNewsFragment : Fragment(), CarBackClickListener {
+    private lateinit var binding: FragmentCarNewsBinding
+    private lateinit var carDetailViewModel: CarDetailViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCarNewsBinding.inflate(inflater,container,false)
+        binding = FragmentCarNewsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        carId           = arguments?.getInt("carId")
-        title           = CarListAdapter.title
-        creator         = CarListAdapter.creator
-        description     = CarListAdapter.news
-        image           = CarListAdapter.image
+        carDetailViewModel = ViewModelProvider(this).get(CarDetailViewModel::class.java)
 
-        refresh()
+        val carId = CarNewsFragmentArgs.fromBundle(requireArguments()).carId
+        carDetailViewModel.fetch(carId)
 
-        binding.btnPrev.setOnClickListener {
-            if (newsIndex > 0) {
-                newsIndex--
-            }
-            refresh()
-        }
+        binding.backListener = this
 
-        binding.btnNext.setOnClickListener {
-            if (newsIndex < description.size - 1) {
-                newsIndex++
-            }
-            refresh()
-        }
-
-        binding.btnHome.setOnClickListener {
-            val action = CarNewsFragmentDirections.actionNewsToHome()
-            Navigation.findNavController(view).navigate(action)
-        }
+        observeViewModel()
     }
 
-    fun refresh(){
-        if (carId != null){
-            val builder = Picasso.Builder(requireContext())
-            builder.listener { picasso, uri, exception -> exception.printStackTrace() }
-            Picasso.get().load(image).into(binding.imgNews)
+    private fun observeViewModel() {
+        carDetailViewModel.carLD.observe(viewLifecycleOwner, Observer { car ->
+            binding.car = car
+        })
+    }
 
-            binding.txtNewsTitle.text       = title
-            binding.txtNewsCreator.text     = "@" + creator
-            binding.txtNews.text            = description[newsIndex]
-            binding.txtPage.text = (newsIndex + 1).toString() + "/" + description.size.toString()
-        }
+    override fun onCarBackClickListener(v: View) {
+        val action = CarNewsFragmentDirections.actionNewsToHome()
+        Navigation.findNavController(v).navigate(action)
     }
 }

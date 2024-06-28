@@ -6,75 +6,63 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.dimas.uts_anmp_hobbyapp.databinding.ActivityLoginBinding
+import com.dimas.uts_anmp_hobbyapp.model.User
+import com.dimas.uts_anmp_hobbyapp.view.UserLoginClickListener
+import com.dimas.uts_anmp_hobbyapp.view.UserRegisterClickListener
+import com.dimas.uts_anmp_hobbyapp.viewmodel.UserViewModel
 import org.json.JSONObject
 
-class LoginActivity : AppCompatActivity() {
-    private lateinit var binding:ActivityLoginBinding
+class LoginActivity : AppCompatActivity(), UserLoginClickListener, UserRegisterClickListener {
+    private lateinit var binding: ActivityLoginBinding
+    private lateinit var viewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSignIn.setOnClickListener {
-            val q   = Volley.newRequestQueue(this)
-            val url = "https://ubaya.me/native/160421040/hobby_login.php"
+        binding.user = User("","","","","")
 
-            val stringRequest = object : StringRequest(Request.Method.POST, url,
-                Response.Listener
-                {
-                    Log.d("apilogin", it.toString())
-                    val obj = JSONObject(it)
-                    if (obj.getString("result") == "success")
-                    {
-                        val data = obj.getString("nama")
-                        Log.d("apiuser", data.toString())
+        binding.loginListener = this
+        binding.registerListener = this
+    }
 
-                        var loginInfo = "com.dimas.uts_anmp_hobbyapp"
-                        var shared:SharedPreferences = getSharedPreferences(loginInfo, Context.MODE_PRIVATE )
-                        var editor:SharedPreferences.Editor = shared.edit()
+    override fun onUserRegisterClickListener(v: View) {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
+    }
 
-                        editor.putString("iduser", binding.txtUsername.text.toString())
-                        editor.putString("name",data.toString())
-                        editor.apply()
+    override fun onUserLoginClickListener(v: View) {
+        val username = binding.txtUsername.text.toString()
+        val password = binding.txtPassword.text.toString()
 
-                        //Login success
-                        Toast.makeText(this, "Login Success", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
-                    }
-                },
+        viewModel.loginUser(username, password).observe(this, Observer { user ->
+            if (user != null) {
+                val loginInfo = "com.dimas.uts_anmp_hobbyapp"
+                val shared: SharedPreferences = getSharedPreferences(loginInfo, Context.MODE_PRIVATE)
+                val editor: SharedPreferences.Editor = shared.edit()
 
-                Response.ErrorListener
-                {
-                    Log.d("apilogin", it.message.toString())
-                    Toast.makeText(this,"Error", Toast.LENGTH_SHORT).show()
-                })
-            {
-                override fun getParams(): MutableMap<String, String>
-                {
-                    val params = HashMap<String, String>()
+                editor.putString("iduser", username)
+                editor.putString("name", user.nama_depan)
+                editor.apply()
 
-                    params["iduser"]    = binding.txtUsername.text.toString()
-                    params["password"]  = binding.txtPassword.text.toString()
-
-                    return params
-                }
+                Toast.makeText(this, "Login Success", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
             }
-
-            q.add(stringRequest)
-        }
-
-        binding.btnSignUp.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
+        })
     }
 
     override fun onBackPressed()
@@ -83,12 +71,9 @@ class LoginActivity : AppCompatActivity() {
         var shared:SharedPreferences = getSharedPreferences(loginInfo, Context.MODE_PRIVATE )
         var userid = shared.getString("iduser","").toString()
 
-        if(userid == "")
-        {
+        if(userid == ""){
             Toast.makeText(this, "Please Login First", Toast.LENGTH_SHORT).show()
-        }
-        else
-        {
+        }else{
             super.onBackPressed()
         }
     }

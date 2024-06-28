@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import com.dimas.uts_anmp_hobbyapp.R
 import com.dimas.uts_anmp_hobbyapp.databinding.FragmentHistoryBinding
 import com.dimas.uts_anmp_hobbyapp.viewmodel.NavViewModel
+import com.dimas.uts_anmp_hobbyapp.viewmodel.UserViewModel
 
 class HistoryFragment : Fragment() {
     private  lateinit var binding: FragmentHistoryBinding

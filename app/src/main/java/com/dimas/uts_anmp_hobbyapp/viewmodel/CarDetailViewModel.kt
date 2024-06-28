@@ -20,27 +20,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class CarViewModel(application: Application): AndroidViewModel(application), CoroutineScope {
+class CarDetailViewModel(application: Application): AndroidViewModel(application), CoroutineScope {
 
-    val carLD = MutableLiveData<List<Car>>()
-    val loadingLD = MutableLiveData<Boolean>()
-    val carLoadErrorLD = MutableLiveData<Boolean>()
+    val carLD = MutableLiveData<Car>()
     private var job = Job()
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
-    fun refresh() {
-        loadingLD.value = true
-        carLoadErrorLD.value = false
-
-        launch {
-            val db = CarDatabase.buildDatabase(
-                getApplication()
-            )
-
-            carLD.postValue(db.CarDao().selectAllCar())
-            loadingLD.postValue(false)
+    fun fetch(carId: Int){
+        launch{
+            carLD.postValue(buildCarDb(getApplication()).CarDao().selectCar(carId))
         }
     }
 }

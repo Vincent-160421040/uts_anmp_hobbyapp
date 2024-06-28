@@ -13,19 +13,19 @@ import com.dimas.uts_anmp_hobbyapp.R
 import com.dimas.uts_anmp_hobbyapp.databinding.FragmentHomeBinding
 import com.dimas.uts_anmp_hobbyapp.viewmodel.CarViewModel
 import com.dimas.uts_anmp_hobbyapp.viewmodel.NavViewModel
-
+import com.dimas.uts_anmp_hobbyapp.viewmodel.UserViewModel
 
 class HomeFragment : Fragment() {
-    private lateinit var binding        : FragmentHomeBinding
-    private lateinit var navViewModel   : NavViewModel
-    private lateinit var carViewModel   : CarViewModel
+    private lateinit var binding: FragmentHomeBinding
+    private lateinit var navViewModel: NavViewModel
+    private lateinit var carViewModel: CarViewModel
     private val carListAdapter = CarListAdapter(arrayListOf())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentHomeBinding.inflate(inflater,container,false)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -35,19 +35,8 @@ class HomeFragment : Fragment() {
         carViewModel = ViewModelProvider(this).get(CarViewModel::class.java)
         carViewModel.refresh()
 
-        observeViewModel()
-
-        binding.recView.adapter         = carListAdapter
-        binding.recView.visibility      = View.VISIBLE
-        binding.recView.layoutManager   = LinearLayoutManager(context)
-
-        binding.refreshLayout.setOnRefreshListener {
-            carViewModel.refresh()
-            binding.recView.visibility          = View.GONE
-            binding.txtError.visibility         = View.GONE
-            binding.progressLoad.visibility     = View.VISIBLE
-            binding.refreshLayout.isRefreshing  = false
-        }
+        binding.recView.layoutManager = LinearLayoutManager(context)
+        binding.recView.adapter = carListAdapter
 
         navViewModel = ViewModelProvider(requireActivity()).get(NavViewModel::class.java)
         navViewModel.selectedItemId.observe(viewLifecycleOwner) { itemId ->
@@ -56,13 +45,14 @@ class HomeFragment : Fragment() {
                     val action = HomeFragmentDirections.actionHomeToHistory()
                     Navigation.findNavController(requireView()).navigate(action)
                 }
-
                 R.id.itemUsers -> {
                     val action = HomeFragmentDirections.actionHomeToProfile()
                     Navigation.findNavController(requireView()).navigate(action)
                 }
             }
         }
+
+        observeViewModel()
     }
 
     fun observeViewModel() {
@@ -70,23 +60,19 @@ class HomeFragment : Fragment() {
             carListAdapter.updateCarList(it)
         })
 
-        carViewModel.carLoadErrorLD.observe(viewLifecycleOwner, Observer
-        {
+        carViewModel.carLoadErrorLD.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 binding.txtError.visibility = View.VISIBLE
-            }
-            else {
+            } else {
                 binding.txtError.visibility = View.GONE
             }
         })
 
-        carViewModel.loadingLD.observe(viewLifecycleOwner, Observer
-        {
+        carViewModel.loadingLD.observe(viewLifecycleOwner, Observer {
             if (it == true) {
                 binding.progressLoad.visibility = View.VISIBLE
                 binding.recView.visibility = View.GONE
-            }
-            else {
+            } else {
                 binding.progressLoad.visibility = View.GONE
                 binding.recView.visibility = View.VISIBLE
             }
